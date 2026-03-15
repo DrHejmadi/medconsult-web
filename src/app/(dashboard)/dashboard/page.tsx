@@ -72,25 +72,68 @@ export default function DashboardPage() {
         </Card>
 
         <Card>
-          <CardTitle>Compliance</CardTitle>
+          <CardTitle>Compliance Status</CardTitle>
           <div className="space-y-3 mt-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-700">Adgangslog</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Aktiv</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-700">Journalversionering</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Aktiv</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-700">Sletningsbeskyttelse</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Aktiv</span>
-            </div>
+            {[
+              { label: 'Audit trail aktiv', active: true },
+              { label: 'Versionering aktiv', active: true },
+              { label: 'Soft-delete aktiv', active: true },
+              { label: 'GDPR-samtykke', active: true },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-2">
+                <span className="text-green-600 font-bold">✓</span>
+                <span className="text-sm text-gray-700">{item.label}</span>
+              </div>
+            ))}
             <Link href="/audit-log" className="block text-sm text-blue-600 hover:underline mt-2">
               Se adgangslog →
             </Link>
           </div>
         </Card>
+      </div>
+
+      {/* Seneste aktivitet */}
+      <Card>
+        <CardTitle>Seneste aktivitet</CardTitle>
+        <div className="space-y-3 mt-4">
+          {[
+            { action: 'Journal oprettet', detail: 'Patient #1042 – Akut konsultation', time: 'I dag, 14:32' },
+            { action: 'Opslag besvaret', detail: 'Vikariat – Akutmodtagelse', time: 'I dag, 11:15' },
+            { action: 'Besked sendt', detail: 'Til Region Hovedstaden', time: 'I går, 16:45' },
+            { action: 'Dokument uploadet', detail: 'Autorisationsbevis.pdf', time: 'I går, 09:20' },
+            { action: 'Profil opdateret', detail: 'Specialer tilføjet', time: '12. mar, 10:05' },
+          ].map((entry, i) => (
+            <div key={i} className="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0">
+              <div>
+                <p className="text-sm font-medium text-gray-900">{entry.action}</p>
+                <p className="text-xs text-gray-500">{entry.detail}</p>
+              </div>
+              <span className="text-xs text-gray-400 whitespace-nowrap ml-4">{entry.time}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Hurtig adgang */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Hurtig adgang</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { href: '/salary', label: 'Lønberegner', icon: '💰', color: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' },
+            { href: '/documents', label: 'Dokumenter', icon: '📁', color: 'bg-purple-50 text-purple-700 hover:bg-purple-100' },
+            { href: '/contracts', label: 'Kontrakter', icon: '📝', color: 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100' },
+            { href: '/time-tracking', label: 'Tidsregistrering', icon: '⏱️', color: 'bg-teal-50 text-teal-700 hover:bg-teal-100' },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200 ${item.color} transition-colors text-center`}
+            >
+              <span className="text-2xl">{item.icon}</span>
+              <span className="text-sm font-medium">{item.label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )

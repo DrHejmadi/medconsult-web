@@ -35,7 +35,12 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/profiles') ||
     request.nextUrl.pathname.startsWith('/ngo') ||
     request.nextUrl.pathname.startsWith('/settings') ||
-    request.nextUrl.pathname.startsWith('/audit-log')
+    request.nextUrl.pathname.startsWith('/audit-log') ||
+    request.nextUrl.pathname.startsWith('/documents') ||
+    request.nextUrl.pathname.startsWith('/calculator') ||
+    request.nextUrl.pathname.startsWith('/time-tracking') ||
+    request.nextUrl.pathname.startsWith('/contracts') ||
+    request.nextUrl.pathname.startsWith('/ratings')
 
   if (!user && isDashboardPage) {
     const url = request.nextUrl.clone()

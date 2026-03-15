@@ -145,3 +145,42 @@ export interface ConversationPreview {
   last_message_at: string
   unread_count: number
 }
+
+export interface Document {
+  id: string
+  user_id: string
+  name: string
+  file_url: string
+  file_size: number
+  file_type: string
+  category: string
+  uploaded_at: string
+}
+
+export interface Rating {
+  id: string
+  rater_id: string
+  rated_id: string
+  assignment_id: string
+  score: number
+  comment: string
+  created_at: string
+}
+
+export interface TimeEntry {
+  id: string
+  user_id: string
+  assignment_id: string
+  date: string
+  hours: number
+  notes: string
+  created_at: string
+}
+
+export interface ContractTemplate {
+  id: string
+  name: string
+  content: string
+  category: string
+  created_at: string
+}

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { searchICD10, type ICD10Code } from '@/lib/data/icd10'
 
 export default function JournalCreatePage() {
   const router = useRouter()
@@ -29,8 +30,47 @@ export default function JournalCreatePage() {
   const [samtykkeNotes, setSamtykkeNotes] = useState('')
 
   // Diagnosis + medications
-  const [diagnosisCodes, setDiagnosisCodes] = useState('')
+  const [selectedDiagnoses, setSelectedDiagnoses] = useState<ICD10Code[]>([])
+  const [icdSearchQuery, setIcdSearchQuery] = useState('')
+  const [icdResults, setIcdResults] = useState<ICD10Code[]>([])
+  const [showIcdDropdown, setShowIcdDropdown] = useState(false)
+  const icdRef = useRef<HTMLDivElement>(null)
   const [medications, setMedications] = useState<{ name: string; dosage: string; frequency: string; route: string }[]>([])
+
+  // ICD-10 autocomplete
+  useEffect(() => {
+    if (icdSearchQuery.length >= 1) {
+      const results = searchICD10(icdSearchQuery).filter(
+        (r) => !selectedDiagnoses.some((d) => d.code === r.code)
+      )
+      setIcdResults(results)
+      setShowIcdDropdown(results.length > 0)
+    } else {
+      setIcdResults([])
+      setShowIcdDropdown(false)
+    }
+  }, [icdSearchQuery, selectedDiagnoses])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (icdRef.current && !icdRef.current.contains(e.target as Node)) {
+        setShowIcdDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function addDiagnosis(code: ICD10Code) {
+    setSelectedDiagnoses([...selectedDiagnoses, code])
+    setIcdSearchQuery('')
+    setShowIcdDropdown(false)
+  }
+
+  function removeDiagnosis(code: string) {
+    setSelectedDiagnoses(selectedDiagnoses.filter((d) => d.code !== code))
+  }
 
   function addMedication() {
     setMedications([...medications, { name: '', dosage: '', frequency: '', route: 'PO' }])
@@ -59,7 +99,7 @@ export default function JournalCreatePage() {
     if (!user) return
 
     const entryTimestamp = `${entryDate}T${entryTime}:00Z`
-    const codes = diagnosisCodes.split(',').map(c => c.trim()).filter(Boolean)
+    const codes = selectedDiagnoses.map((d) => d.code)
 
     const { error: insertError } = await supabase.from('journal_entries').insert({
       doctor_id: user.id,
@@ -155,10 +195,10 @@ export default function JournalCreatePage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Henvendelsesårsag *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Henvendelsesarsag *</label>
             <input required value={henvendelsesaarsag} onChange={(e) => setHenvendelsesaarsag(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              placeholder="Årsag til henvendelsen" />
+              placeholder="Arsag til henvendelsen" />
           </div>
           <div className="flex items-center gap-3">
             <input type="checkbox" id="samtykke" checked={informeretSamtykke}
@@ -183,7 +223,7 @@ export default function JournalCreatePage() {
             { label: 'Subjektivt (S)', value: subjective, setter: setSubjective, placeholder: 'Patientens symptomer og klager' },
             { label: 'Objektivt (O)', value: objective, setter: setObjective, placeholder: 'Kliniske fund og observationer' },
             { label: 'Vurdering (A)', value: assessment, setter: setAssessment, placeholder: 'Diagnose og klinisk vurdering' },
-            { label: 'Plan (P)', value: plan, setter: setPlan, placeholder: 'Behandlingsplan og opfølgning' },
+            { label: 'Plan (P)', value: plan, setter: setPlan, placeholder: 'Behandlingsplan og opfolgning' },
           ].map((field) => (
             <div key={field.label}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
@@ -197,7 +237,7 @@ export default function JournalCreatePage() {
             </div>
           ))}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Øvrige noter</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ovrige noter</label>
             <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
           </div>
@@ -206,17 +246,64 @@ export default function JournalCreatePage() {
         {/* Diagnose + medicin */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
           <h2 className="font-semibold text-gray-900">Diagnoser & medicin</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Diagnosekoder (kommasepareret)</label>
-            <input value={diagnosisCodes} onChange={(e) => setDiagnosisCodes(e.target.value)}
+
+          {/* ICD-10 Autocomplete */}
+          <div ref={icdRef} className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">ICD-10 / SKS diagnosekoder</label>
+
+            {/* Selected diagnoses as badges */}
+            {selectedDiagnoses.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedDiagnoses.map((d) => (
+                  <span
+                    key={d.code}
+                    className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-sm font-medium"
+                  >
+                    <span className="font-semibold">{d.code}</span>
+                    <span className="text-blue-500">{d.description}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeDiagnosis(d.code)}
+                      className="ml-1 text-blue-400 hover:text-blue-600"
+                    >
+                      x
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <input
+              value={icdSearchQuery}
+              onChange={(e) => setIcdSearchQuery(e.target.value)}
+              onFocus={() => {
+                if (icdResults.length > 0) setShowIcdDropdown(true)
+              }}
               className="block w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              placeholder="DR51, DG43" />
+              placeholder="Sog efter diagnosekode eller beskrivelse..."
+            />
+
+            {showIcdDropdown && (
+              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {icdResults.map((result) => (
+                  <button
+                    key={result.code}
+                    type="button"
+                    onClick={() => addDiagnosis(result)}
+                    className="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2 text-sm border-b border-gray-100 last:border-0"
+                  >
+                    <span className="font-semibold text-blue-600 min-w-[50px]">{result.code}</span>
+                    <span className="text-gray-700">{result.description}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-gray-700">Medicin</label>
-              <button type="button" onClick={addMedication} className="text-sm text-blue-600 hover:underline">+ Tilføj</button>
+              <button type="button" onClick={addMedication} className="text-sm text-blue-600 hover:underline">+ Tilfoj</button>
             </div>
             {medications.map((med, i) => (
               <div key={i} className="grid grid-cols-5 gap-2 mb-2">
