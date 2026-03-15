@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 
 const navItems = [
   { href: '/dashboard', label: 'Oversigt', icon: '📊' },
+  { href: '/analytics', label: 'Analyser', icon: '📈' },
   { href: '/journal', label: 'Journal', icon: '📋' },
   { href: '/assignments', label: 'Opslag', icon: '📌' },
   { href: '/assignments/akut', label: 'Akut vikar', icon: '🚨' },
@@ -17,7 +18,10 @@ const navItems = [
   { href: '/contracts', label: 'Kontrakter', icon: '📝' },
   { href: '/ratings', label: 'Anmeldelser', icon: '⭐' },
   { href: '/calculator', label: 'Lønberegner', icon: '🧮' },
+  { href: '/cpd', label: 'Kompetencer', icon: '🎓' },
   { href: '/ngo', label: 'NGO', icon: '💚' },
+  { href: '/notifications', label: 'Notifikationer', icon: '🔔' },
+  { href: '/referral', label: 'Inviter', icon: '🤝' },
   { href: '/settings', label: 'Indstillinger', icon: '⚙️' },
   { href: '/audit-log', label: 'Adgangslog', icon: '🔒' },
 ]

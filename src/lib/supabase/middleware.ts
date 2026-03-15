@@ -43,7 +43,11 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/ratings') ||
     request.nextUrl.pathname.startsWith('/vagtbytte') ||
     request.nextUrl.pathname.startsWith('/calendar') ||
-    request.nextUrl.pathname.startsWith('/onboarding')
+    request.nextUrl.pathname.startsWith('/cpd') ||
+    request.nextUrl.pathname.startsWith('/notifications') ||
+    request.nextUrl.pathname.startsWith('/onboarding') ||
+    request.nextUrl.pathname.startsWith('/referral') ||
+    request.nextUrl.pathname.startsWith('/analytics')
 
   if (!user && isDashboardPage) {
     const url = request.nextUrl.clone()
