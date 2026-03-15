@@ -119,7 +119,7 @@ export default function DashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-3">Hurtig adgang</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { href: '/salary', label: 'Lønberegner', icon: '💰', color: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' },
+            { href: '/calculator', label: 'Lønberegner', icon: '💰', color: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100' },
             { href: '/documents', label: 'Dokumenter', icon: '📁', color: 'bg-purple-50 text-purple-700 hover:bg-purple-100' },
             { href: '/contracts', label: 'Kontrakter', icon: '📝', color: 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100' },
             { href: '/time-tracking', label: 'Tidsregistrering', icon: '⏱️', color: 'bg-teal-50 text-teal-700 hover:bg-teal-100' },

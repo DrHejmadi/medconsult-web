@@ -7,9 +7,19 @@ export default function LandingPage() {
     <>
       <Header />
       <main>
+        {/* Launch banner */}
+        <div className="bg-blue-600 text-white text-center py-3 px-4">
+          <p className="text-sm font-medium">
+            Vi forventer at lancere MedConsult <span className="font-bold">1. maj 2026</span> — tilmeld dig allerede nu og vær blandt de første brugere!
+          </p>
+        </div>
+
         {/* Hero */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-block bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-1.5 rounded-full mb-6">
+              Forventet lancering: 1. maj 2026
+            </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
               Forbind læger med dem der har brug for dem
             </h1>
@@ -22,7 +32,7 @@ export default function LandingPage() {
                 href="/signup"
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors"
               >
-                Kom i gang gratis
+                Tilmeld dig til lancering
               </Link>
               <Link
                 href="#features"
@@ -69,6 +79,21 @@ export default function LandingPage() {
                   icon: '👤',
                   title: 'Patientrettigheder',
                   description: 'Patienter kan anmode om aktindsigt, se adgangslog og administrere samtykke via patientportalen.',
+                },
+                {
+                  icon: '📄',
+                  title: 'Dokumenthåndtering',
+                  description: 'Upload og administrer CV, certifikater, forsikringsbeviser og autorisationsdokumenter direkte i platformen.',
+                },
+                {
+                  icon: '⏱️',
+                  title: 'Tidsregistrering & fakturering',
+                  description: 'Registrer timer per vagt, generer fakturaer og beregn løn efter PLO/PLA-overenskomsten.',
+                },
+                {
+                  icon: '📝',
+                  title: 'Kontrakt-skabeloner',
+                  description: 'Vikaraftaler, fortrolighedserklæringer og databehandleraftaler — klar til brug med automatisk udfyldning.',
                 },
               ].map((feature) => (
                 <div key={feature.title} className="bg-white rounded-xl border border-gray-200 p-6">
@@ -120,16 +145,44 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Coming Soon */}
+        <section className="bg-blue-50 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-4">Kommer snart</h2>
+            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+              Vi arbejder på disse funktioner til lanceringen 1. maj 2026
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { icon: '🔐', label: 'MitID Erhverv login' },
+                { icon: '✅', label: 'STPS autorisationsverificering' },
+                { icon: '💊', label: 'FMK medicinliste (read-only)' },
+                { icon: '📅', label: 'Kalendervisning for vagter' },
+                { icon: '🌙', label: 'Dark Mode' },
+                { icon: '🔔', label: 'Push-notifikationer' },
+                { icon: '🔄', label: 'Vagtbytte-markedsplads' },
+                { icon: '🎓', label: 'Kompetencelogbog (CPD)' },
+              ].map((item) => (
+                <div key={item.label} className="bg-white rounded-lg border border-blue-100 px-4 py-3 flex items-center gap-3">
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">Klar til at komme i gang?</h2>
-            <p className="text-xl text-gray-600 mb-8">Opret en gratis konto og begynd at bruge MedConsult i dag.</p>
+            <h2 className="text-3xl font-bold mb-4">Vær med fra starten</h2>
+            <p className="text-xl text-gray-600 mb-2">MedConsult lanceres 1. maj 2026.</p>
+            <p className="text-lg text-gray-500 mb-8">Tilmeld dig nu og få tidlig adgang til platformen.</p>
             <Link
               href="/signup"
               className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors"
             >
-              Opret gratis konto
+              Tilmeld dig til lancering
             </Link>
           </div>
         </section>

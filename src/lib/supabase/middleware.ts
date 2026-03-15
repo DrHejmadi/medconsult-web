@@ -40,7 +40,10 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/calculator') ||
     request.nextUrl.pathname.startsWith('/time-tracking') ||
     request.nextUrl.pathname.startsWith('/contracts') ||
-    request.nextUrl.pathname.startsWith('/ratings')
+    request.nextUrl.pathname.startsWith('/ratings') ||
+    request.nextUrl.pathname.startsWith('/vagtbytte') ||
+    request.nextUrl.pathname.startsWith('/calendar') ||
+    request.nextUrl.pathname.startsWith('/onboarding')
 
   if (!user && isDashboardPage) {
     const url = request.nextUrl.clone()

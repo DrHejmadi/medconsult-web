@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ThemeProvider } from '@/components/providers/theme-provider'
 
 export const metadata: Metadata = {
   title: 'MedConsult - Platform for lægevikariater',
@@ -8,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="da">
-      <body className="bg-gray-50 text-gray-900 antialiased">
-        {children}
+    <html lang="da" suppressHydrationWarning>
+      <body className="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )
