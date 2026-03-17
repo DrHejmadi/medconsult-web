@@ -28,6 +28,7 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup')
+  const isPatientPage = request.nextUrl.pathname.startsWith('/my-cases')
   const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard') ||
     request.nextUrl.pathname.startsWith('/journal') ||
     request.nextUrl.pathname.startsWith('/assignments') ||
@@ -47,9 +48,10 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/notifications') ||
     request.nextUrl.pathname.startsWith('/onboarding') ||
     request.nextUrl.pathname.startsWith('/referral') ||
-    request.nextUrl.pathname.startsWith('/analytics')
+    request.nextUrl.pathname.startsWith('/analytics') ||
+    request.nextUrl.pathname.startsWith('/payment')
 
-  if (!user && isDashboardPage) {
+  if (!user && (isDashboardPage || isPatientPage)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

@@ -32,7 +32,7 @@ export function Header() {
     router.push('/login')
   }
 
-  const isPublic = pathname === '/' || pathname === '/gdpr'
+  const isPublic = pathname === '/' || pathname === '/gdpr' || pathname === '/disclaimer' || pathname === '/behandlingssted' || pathname === '/informed-consent'
 
   if (!isPublic && !user) return null
 
@@ -66,6 +66,7 @@ export function Header() {
             {isPublic ? (
               <>
                 <Link href="/gdpr" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">GDPR</Link>
+                <Link href="/disclaimer" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">Disclaimer</Link>
                 <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">Log ind</Link>
                 <Link href="/signup" className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg">
                   Opret konto

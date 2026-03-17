@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export function Footer() {
   return (
     <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-8">
@@ -7,8 +9,13 @@ export function Footer() {
             <span className="text-xl">🏥</span>
             <span className="font-semibold text-gray-900 dark:text-gray-100">MedConsult</span>
           </div>
+          <nav className="flex items-center gap-4">
+            <Link href="/disclaimer" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Disclaimer</Link>
+            <Link href="/behandlingssted" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Behandlingssted</Link>
+            <Link href="/informed-consent" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Informeret samtykke</Link>
+          </nav>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} MedConsult. Alle rettigheder forbeholdes.
+            &copy; {new Date().getFullYear()} MedConsult. Alle rettigheder forbeholdes.
           </p>
         </div>
       </div>

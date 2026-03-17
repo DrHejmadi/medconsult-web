@@ -19,6 +19,8 @@ const navItems = [
   { href: '/ratings', label: 'Anmeldelser', icon: '⭐' },
   { href: '/calculator', label: 'Lønberegner', icon: '🧮' },
   { href: '/cpd', label: 'Kompetencer', icon: '🎓' },
+  { href: '/cases', label: 'Cases', icon: '📋' },
+  { href: '/cases/knowledge-base', label: 'Videnbase', icon: '📚' },
   { href: '/ngo', label: 'NGO', icon: '💚' },
   { href: '/notifications', label: 'Notifikationer', icon: '🔔' },
   { href: '/referral', label: 'Inviter', icon: '🤝' },
