@@ -21,11 +21,11 @@ export default function LandingPage() {
               Forventet lancering: 1. maj 2026
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Forbind læger med dem der har brug for dem
+              Den komplette platform for læger i Danmark
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              MedConsult gør det nemt at finde vikariater, frivillige muligheder og samarbejdspartnere
-              i det danske sundhedsvæsen.
+              MedConsult gør det nemt at finde vikariater, håndtere journaler, beregne løn,
+              tracke kompetencer og samarbejde — alt samlet ét sted for det danske sundhedsvæsen.
             </p>
             <div className="flex gap-4 justify-center">
               <Link
@@ -148,24 +148,38 @@ export default function LandingPage() {
         {/* Coming Soon */}
         <section className="bg-blue-50 py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-4">Kommer snart</h2>
+            <h2 className="text-3xl font-bold text-center mb-4">Funktioner ved lancering</h2>
             <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
-              Vi arbejder på disse funktioner til lanceringen 1. maj 2026
+              Vi har allerede bygget en lang række funktioner til lanceringen 1. maj 2026 — og flere er på vej
             </p>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { icon: '🔐', label: 'MitID Erhverv login' },
-                { icon: '✅', label: 'STPS autorisationsverificering' },
-                { icon: '💊', label: 'FMK medicinliste (read-only)' },
-                { icon: '📅', label: 'Kalendervisning for vagter' },
-                { icon: '🌙', label: 'Dark Mode' },
-                { icon: '🔔', label: 'Push-notifikationer' },
-                { icon: '🔄', label: 'Vagtbytte-markedsplads' },
-                { icon: '🎓', label: 'Kompetencelogbog (CPD)' },
+                { icon: '🏥', label: 'ICD-10 diagnosekodning', ready: true },
+                { icon: '💰', label: 'Lønberegner (PLO/PLA-takster)', ready: true },
+                { icon: '📄', label: 'Dokumenthåndtering', ready: true },
+                { icon: '⏱️', label: 'Tidsregistrering', ready: true },
+                { icon: '📝', label: 'Kontraktskabeloner', ready: true },
+                { icon: '⭐', label: 'Anmeldelser og ratings', ready: true },
+                { icon: '📅', label: 'Kalender', ready: true },
+                { icon: '🚑', label: 'Akut vikar-matching', ready: true },
+                { icon: '🔄', label: 'Vagtbytte-markedsplads', ready: true },
+                { icon: '🎓', label: 'CPD-tracker (kompetencelogbog)', ready: true },
+                { icon: '🌙', label: 'Dark mode', ready: true },
+                { icon: '🔔', label: 'Push-notifikationer', ready: true },
+                { icon: '📊', label: 'Analyser og indsigter', ready: true },
+                { icon: '🤖', label: 'AI-assisteret triage', ready: false },
+                { icon: '🔐', label: 'MitID Erhverv login', ready: false },
+                { icon: '✅', label: 'STPS autorisationsverificering', ready: false },
+                { icon: '💊', label: 'FMK medicinliste (read-only)', ready: false },
               ].map((item) => (
-                <div key={item.label} className="bg-white rounded-lg border border-blue-100 px-4 py-3 flex items-center gap-3">
+                <div key={item.label} className={`rounded-lg border px-4 py-3 flex items-center gap-3 ${item.ready ? 'bg-white border-green-200' : 'bg-gray-50 border-blue-100'}`}>
                   <span className="text-xl">{item.icon}</span>
                   <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                  {item.ready ? (
+                    <span className="ml-auto text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full whitespace-nowrap">Klar</span>
+                  ) : (
+                    <span className="ml-auto text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap">Kommer snart</span>
+                  )}
                 </div>
               ))}
             </div>
