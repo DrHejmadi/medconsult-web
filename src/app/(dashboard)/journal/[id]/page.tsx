@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logReadAccess } from '@/lib/audit/logReadAccess'
 import type { JournalEntry, JournalEntryVersion } from '@/lib/types/database'
 import { Badge } from '@/components/ui/badge'
 import { formatDateTime } from '@/lib/utils/date'
@@ -61,6 +62,9 @@ export default function JournalDetailPage() {
       resource_type: 'journal_entry',
       resource_id: id,
     })
+
+    // Log read access
+    await logReadAccess('journal_entry', id)
 
     // Load versions
     const { data: versionData } = await supabase

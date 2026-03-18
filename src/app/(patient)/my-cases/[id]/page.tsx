@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logReadAccess } from '@/lib/audit/logReadAccess'
 import type { MedicalCase, CaseMessage } from '@/lib/types/case'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -70,6 +71,9 @@ export default function CaseDetailPage() {
     }
 
     setMedicalCase(caseData as MedicalCase)
+
+    // Log read access
+    logReadAccess('medical_case', caseId)
 
     // Load messages if konsultation level
     if (caseData.service_level === 'konsultation' || caseData.service_level === 'fuld_udredning') {

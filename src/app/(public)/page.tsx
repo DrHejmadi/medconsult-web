@@ -21,11 +21,11 @@ export default function LandingPage() {
               Forventet lancering: 1. maj 2026
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Den komplette platform for læger i Danmark
+              Den komplette sundhedsplatform for Danmark
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              MedConsult gør det nemt at finde vikariater, håndtere journaler, beregne løn,
-              tracke kompetencer og samarbejde — alt samlet ét sted for det danske sundhedsvæsen.
+              MedConsult forbinder patienter med verificerede danske læger til asynkron klinisk ekspertvurdering,
+              og giver læger en samlet platform til vikariater, journaler, kompetencer og samarbejde.
             </p>
             <div className="flex gap-4 justify-center">
               <Link
@@ -110,7 +110,7 @@ export default function LandingPage() {
         <section className="bg-gray-50 py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-center mb-12">For hvem?</h2>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 {
                   icon: '🩺',
@@ -126,6 +126,11 @@ export default function LandingPage() {
                   icon: '💚',
                   title: 'NGOer',
                   points: ['Opret frivillige opslag', 'Find læger til humanitære projekter', 'Gratis platform for non-profit'],
+                },
+                {
+                  icon: '🧑‍⚕️',
+                  title: 'Patienter',
+                  points: ['Få asynkron klinisk ekspertvurdering', 'Vælg serviceniveau og speciale', 'Fuld aktindsigt og klageadgang'],
                 },
               ].map((role) => (
                 <div key={role.title} className="bg-white rounded-xl border border-gray-200 p-6">
@@ -167,6 +172,12 @@ export default function LandingPage() {
                 { icon: '🌙', label: 'Dark mode', ready: true },
                 { icon: '🔔', label: 'Push-notifikationer', ready: true },
                 { icon: '📊', label: 'Analyser og indsigter', ready: true },
+                { icon: '🩺', label: 'Patient-konsultationer (asynkron)', ready: true },
+                { icon: '💳', label: 'Betalingssystem (Stripe/PSD2)', ready: true },
+                { icon: '⚖️', label: 'Klagevejledning og patienterstatning', ready: true },
+                { icon: '📜', label: 'Databehandleraftale', ready: true },
+                { icon: '👁️', label: 'Læseadgangslog (GDPR)', ready: true },
+                { icon: '✅', label: 'Granulært samtykke-flow', ready: true },
                 { icon: '🤖', label: 'AI-assisteret triage', ready: false },
                 { icon: '🔐', label: 'MitID Erhverv login', ready: false },
                 { icon: '✅', label: 'STPS autorisationsverificering', ready: false },

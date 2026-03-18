@@ -21,6 +21,7 @@ const navItems = [
   { href: '/cpd', label: 'Kompetencer', icon: '🎓' },
   { href: '/cases', label: 'Cases', icon: '📋' },
   { href: '/cases/knowledge-base', label: 'Videnbase', icon: '📚' },
+  { href: '/payment', label: 'Betalinger', icon: '💳' },
   { href: '/ngo', label: 'NGO', icon: '💚' },
   { href: '/notifications', label: 'Notifikationer', icon: '🔔' },
   { href: '/referral', label: 'Inviter', icon: '🤝' },

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logReadAccess } from '@/lib/audit/logReadAccess'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -71,7 +72,10 @@ export default function CaseDetailPage() {
       .eq('id', caseId)
       .single()
 
-    if (caseRes) setCaseData(caseRes)
+    if (caseRes) {
+      setCaseData(caseRes)
+      logReadAccess('medical_case', caseId)
+    }
 
     // Load doctor profile
     const { data: profileRes } = await supabase

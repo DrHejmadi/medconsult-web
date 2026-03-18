@@ -81,6 +81,30 @@ export default function InformedConsentPage() {
 
           <Card>
             <CardHeader>
+              <CardTitle>Klageadgang og erstatning</CardTitle>
+            </CardHeader>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              Som patient har du ret til at klage over den sundhedsfaglige behandling, du har modtaget via MedConsult.
+            </p>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+              <li>
+                <strong>Styrelsen for Patientklager:</strong> Du kan indgive en klage over den sundhedsfaglige behandling til Styrelsen for Patientklager.
+                Kontakt:{' '}
+                <a href="https://stpk.dk" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">stpk.dk</a>, tlf. 72 33 05 00.
+              </li>
+              <li>
+                <strong>Patienterstatningen:</strong> Hvis du har lidt skade som f&oslash;lge af behandling, kan du s&oslash;ge erstatning via Patienterstatningen.
+                Kontakt:{' '}
+                <a href="https://patienterstatningen.dk" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">patienterstatningen.dk</a>.
+              </li>
+              <li>
+                <strong>Klagefrist:</strong> Klage skal indgives inden 2 &aring;r fra det tidspunkt, hvor du blev eller burde v&aelig;re bekendt med forholdet.
+              </li>
+            </ul>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Lovgivningsreferencer</CardTitle>
             </CardHeader>
             <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">

@@ -49,7 +49,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/onboarding') ||
     request.nextUrl.pathname.startsWith('/referral') ||
     request.nextUrl.pathname.startsWith('/analytics') ||
-    request.nextUrl.pathname.startsWith('/payment')
+    request.nextUrl.pathname.startsWith('/payment') ||
+    request.nextUrl.pathname.startsWith('/cases')
 
   if (!user && (isDashboardPage || isPatientPage)) {
     const url = request.nextUrl.clone()

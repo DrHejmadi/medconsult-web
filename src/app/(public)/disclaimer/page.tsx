@@ -75,6 +75,40 @@ export default function DisclaimerPage() {
               </li>
             </ul>
           </section>
+
+          <section id="klageadgang">
+            <h2 className="text-2xl font-semibold mb-4">Klageadgang og erstatning</h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+              <li>
+                <strong>Styrelsen for Patientklager:</strong>{' '}
+                <a href="https://stpk.dk" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">stpk.dk</a>, tlf. 72 33 05 00.
+                Styrelsen behandler klager over sundhedsfaglig behandling.
+              </li>
+              <li>
+                <strong>Patienterstatningen:</strong>{' '}
+                <a href="https://patienterstatningen.dk" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">patienterstatningen.dk</a>.
+                Patienterstatningen d&aelig;kker skader for&aring;rsaget af behandling, hvis skaden overstiger 10.000 kr.
+              </li>
+              <li>
+                <strong>Sundhedsv&aelig;senets Disciplin&aelig;rn&aelig;vn:</strong> Behandler sager om sundhedspersoners faglige virke og kan udtale kritik eller inddrage autorisationer.
+              </li>
+              <li>
+                <strong>Klagefrist:</strong> Klage skal indgives inden 2 &aring;r fra det tidspunkt, hvor patienten blev eller burde v&aelig;re bekendt med forholdet.
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">Medicinsk udstyr (MDR)</h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+              <li>MedConsult er <strong>IKKE</strong> klassificeret som medicinsk udstyr (Software as a Medical Device).</li>
+              <li>Platformen faciliterer kommunikation mellem patient og l&aelig;ge &mdash; der udf&oslash;res ingen algoritmisk triage eller automatiseret beslutningsst&oslash;tte.</li>
+              <li>Al klinisk vurdering foretages udelukkende af autoriserede sundhedspersoner.</li>
+              <li>
+                Jf. EU MDR 2017/745 (Medical Device Regulation) falder platformen uden for definitionen af medicinsk udstyr, da softwaren ikke selv genererer diagnostiske eller terapeutiske anbefalinger.
+              </li>
+            </ul>
+          </section>
         </div>
       </main>
       <Footer />

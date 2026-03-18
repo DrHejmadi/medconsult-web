@@ -13,6 +13,8 @@ export function Footer() {
             <Link href="/disclaimer" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Disclaimer</Link>
             <Link href="/behandlingssted" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Behandlingssted</Link>
             <Link href="/informed-consent" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Informeret samtykke</Link>
+            <Link href="/behandleraftale" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Databehandleraftale</Link>
+            <Link href="/disclaimer#klageadgang" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Klageadgang</Link>
           </nav>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             &copy; {new Date().getFullYear()} MedConsult. Alle rettigheder forbeholdes.
