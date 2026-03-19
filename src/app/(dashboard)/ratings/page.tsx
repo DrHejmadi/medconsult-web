@@ -1,33 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { Card, CardTitle } from '@/components/ui/card'
 
 interface Rating {
   id: string
-  raterName: string
+  rater_name: string
   score: number
   comment: string
-  date: string
-  assignmentTitle: string
+  created_at: string
+  assignment_title: string
+  type: 'received' | 'given'
 }
-
-const mockReceivedRatings: Rating[] = [
-  { id: '1', raterName: 'Region Hovedstaden', score: 5, comment: 'Fantastisk arbejde og meget professionel tilgang.', date: '2026-03-10', assignmentTitle: 'Vikariat – Akutmodtagelse' },
-  { id: '2', raterName: 'Privathospitalet Hamlet', score: 4, comment: 'God kommunikation og faglig dygtighed.', date: '2026-03-05', assignmentTitle: 'Konsultation – Ortopædi' },
-  { id: '3', raterName: 'Lægehuset Østerbro', score: 5, comment: 'Virkelig dygtig læge. Patienterne var meget tilfredse.', date: '2026-02-28', assignmentTitle: 'Vikariat – Almen praksis' },
-  { id: '4', raterName: 'Odense Universitetshospital', score: 3, comment: 'Tilfredsstillende indsats, men lidt forsinkelser.', date: '2026-02-20', assignmentTitle: 'Vikariat – Kardiologi' },
-]
-
-const mockGivenRatings: Rating[] = [
-  { id: '5', raterName: 'Dig', score: 4, comment: 'Godt organiseret afdeling med klare instrukser.', date: '2026-03-08', assignmentTitle: 'Vikariat – Akutmodtagelse' },
-  { id: '6', raterName: 'Dig', score: 5, comment: 'Fremragende samarbejde og gode faciliteter.', date: '2026-03-01', assignmentTitle: 'Konsultation – Ortopædi' },
-]
 
 function StarDisplay({ score }: { score: number }) {
   return (
     <span className="text-yellow-500 text-lg tracking-wide">
-      {Array.from({ length: 5 }, (_, i) => (i < score ? '★' : '☆')).join('')}
+      {Array.from({ length: 5 }, (_, i) => (i < score ? '\u2605' : '\u2606')).join('')}
     </span>
   )
 }
@@ -43,18 +33,62 @@ export default function RatingsPage() {
   const [newScore, setNewScore] = useState(5)
   const [newComment, setNewComment] = useState('')
   const [newAssignment, setNewAssignment] = useState('')
+  const [allRatings, setAllRatings] = useState<Rating[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const ratings = activeTab === 'received' ? mockReceivedRatings : mockGivenRatings
+  const supabase = createClient()
+
+  useEffect(() => {
+    async function fetchRatings() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setLoading(false); return }
+
+      const { data: result } = await supabase
+        .from('ratings')
+        .select('*')
+        .or(`user_id.eq.${user.id},rater_id.eq.${user.id}`)
+        .order('created_at', { ascending: false })
+
+      setAllRatings(result || [])
+      setLoading(false)
+    }
+    fetchRatings()
+  }, [])
+
+  const ratings = allRatings.filter((r) =>
+    activeTab === 'received' ? r.type === 'received' : r.type === 'given'
+  )
   const avg = averageScore(ratings)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert(`Anmeldelse oprettet: ${newScore} stjerner for "${newAssignment}"`)
-    setShowForm(false)
-    setNewScore(5)
-    setNewComment('')
-    setNewAssignment('')
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { error } = await supabase.from('ratings').insert({
+      rater_id: user.id,
+      score: newScore,
+      comment: newComment,
+      assignment_title: newAssignment,
+      type: 'given',
+    })
+
+    if (!error) {
+      setShowForm(false)
+      setNewScore(5)
+      setNewComment('')
+      setNewAssignment('')
+      // Refresh ratings
+      const { data: result } = await supabase
+        .from('ratings')
+        .select('*')
+        .or(`user_id.eq.${user.id},rater_id.eq.${user.id}`)
+        .order('created_at', { ascending: false })
+      setAllRatings(result || [])
+    }
   }
+
+  if (loading) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Indl\u00e6ser...</div>
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -72,13 +106,13 @@ export default function RatingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-200">
+      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
         <button
           onClick={() => setActiveTab('received')}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'received'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
           Modtagne anmeldelser
@@ -88,7 +122,7 @@ export default function RatingsPage() {
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'given'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
           Givne anmeldelser
@@ -97,51 +131,64 @@ export default function RatingsPage() {
 
       {/* Average score badge */}
       <div className="flex items-center gap-3">
-        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-50 border border-yellow-200">
-          <span className="text-2xl font-bold text-yellow-700">{avg}</span>
+        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+          <span className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">{avg}</span>
           <StarDisplay score={Math.round(parseFloat(avg))} />
-          <span className="text-sm text-yellow-700">({ratings.length} anmeldelser)</span>
+          <span className="text-sm text-yellow-700 dark:text-yellow-400">({ratings.length} anmeldelser)</span>
         </span>
       </div>
 
       {/* Ratings list */}
-      <div className="space-y-4">
-        {ratings.map((rating) => (
-          <Card key={rating.id}>
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold text-gray-900">{rating.raterName}</span>
-                  <StarDisplay score={rating.score} />
+      {ratings.length === 0 ? (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <p className="text-lg font-medium">Ingen anmeldelser endnu</p>
+          <p className="text-sm mt-1">
+            {activeTab === 'received'
+              ? 'Du har ikke modtaget nogen anmeldelser endnu.'
+              : 'Du har ikke givet nogen anmeldelser endnu.'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {ratings.map((rating) => (
+            <Card key={rating.id}>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{rating.rater_name}</span>
+                    <StarDisplay score={rating.score} />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{rating.assignment_title}</p>
+                  <p className="text-gray-700 dark:text-gray-300 mt-2">{rating.comment}</p>
                 </div>
-                <p className="text-sm text-gray-500">{rating.assignmentTitle}</p>
-                <p className="text-gray-700 mt-2">{rating.comment}</p>
+                <span className="text-sm text-gray-400 whitespace-nowrap ml-4">
+                  {new Date(rating.created_at).toLocaleDateString('da-DK')}
+                </span>
               </div>
-              <span className="text-sm text-gray-400 whitespace-nowrap ml-4">{rating.date}</span>
-            </div>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* New rating modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
-            <h2 className="text-lg font-semibold mb-4">Skriv en anmeldelse</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-xl">
+            <h2 className="text-lg font-semibold mb-4 dark:text-gray-100">Skriv en anmeldelse</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Opgave</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Opgave</label>
                 <input
                   type="text"
                   value={newAssignment}
                   onChange={(e) => setNewAssignment(e.target.value)}
-                  placeholder="Vælg opgave..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="V\u00e6lg opgave..."
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Score: {newScore} / 5</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Score: {newScore} / 5</label>
                 <input
                   type="range"
                   min="1"
@@ -155,13 +202,13 @@ export default function RatingsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Kommentar</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kommentar</label>
                 <textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   rows={4}
                   placeholder="Skriv din anmeldelse..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -169,7 +216,7 @@ export default function RatingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   Annuller
                 </button>

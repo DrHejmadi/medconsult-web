@@ -1,80 +1,71 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { Card, CardTitle } from '@/components/ui/card'
 
 type Tab = 'certifikater' | 'procedurer' | 'kurser'
 
-interface Certifikat {
+interface CPDEntry {
   id: string
+  entry_type: 'certifikat' | 'procedure' | 'kursus'
   name: string
-  issuer: string
-  dateObtained: string
-  expiryDate: string
-  status: 'Gyldig' | 'Udløbet' | 'Udløber snart'
+  issuer: string | null
+  provider: string | null
+  date_obtained: string | null
+  expiry_date: string | null
+  status: string | null
+  count: number | null
+  last_performed: string | null
+  competence_level: string | null
+  date: string | null
+  cpd_points: number | null
+  created_at: string
 }
 
-interface Procedure {
-  id: string
-  name: string
-  count: number
-  lastPerformed: string
-  competenceLevel: 'Basalt' | 'Selvstændigt' | 'Ekspert'
+const statusColor: Record<string, string> = {
+  'Gyldig': 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400',
+  'Udl\u00f8bet': 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400',
+  'Udl\u00f8ber snart': 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400',
 }
 
-interface Kursus {
-  id: string
-  name: string
-  provider: string
-  date: string
-  cpdPoints: number
-}
-
-const certifikater: Certifikat[] = [
-  { id: '1', name: 'ALS (Advanced Life Support)', issuer: 'Dansk Råd for Genoplivning', dateObtained: '2024-09-15', expiryDate: '2026-09-15', status: 'Gyldig' },
-  { id: '2', name: 'ATLS (Advanced Trauma Life Support)', issuer: 'American College of Surgeons', dateObtained: '2023-03-10', expiryDate: '2027-03-10', status: 'Gyldig' },
-  { id: '3', name: 'ABCDE-kursus', issuer: 'Region Hovedstaden', dateObtained: '2025-01-20', expiryDate: '2027-01-20', status: 'Gyldig' },
-  { id: '4', name: 'Akut ultralyd (POCUS)', issuer: 'Dansk Selskab for Akutmedicin', dateObtained: '2024-06-05', expiryDate: '2026-06-05', status: 'Udløber snart' },
-  { id: '5', name: 'NLS (Neonatal Life Support)', issuer: 'Dansk Råd for Genoplivning', dateObtained: '2022-11-01', expiryDate: '2024-11-01', status: 'Udløbet' },
-  { id: '6', name: 'EPALS (European Paediatric ALS)', issuer: 'European Resuscitation Council', dateObtained: '2025-02-14', expiryDate: '2027-02-14', status: 'Gyldig' },
-]
-
-const procedurer: Procedure[] = [
-  { id: '1', name: 'Ultralyd-guidet IV-adgang', count: 87, lastPerformed: '2026-03-10', competenceLevel: 'Ekspert' },
-  { id: '2', name: 'Lumbalpunktur', count: 34, lastPerformed: '2026-02-28', competenceLevel: 'Selvstændigt' },
-  { id: '3', name: 'Pleuradræn anlæggelse', count: 12, lastPerformed: '2026-01-15', competenceLevel: 'Selvstændigt' },
-  { id: '4', name: 'Endotrakeal intubation', count: 56, lastPerformed: '2026-03-08', competenceLevel: 'Ekspert' },
-  { id: '5', name: 'Central venøs kateter (CVK)', count: 23, lastPerformed: '2026-02-20', competenceLevel: 'Selvstændigt' },
-  { id: '6', name: 'Ascitespunktur', count: 8, lastPerformed: '2025-12-10', competenceLevel: 'Basalt' },
-]
-
-const kurser: Kursus[] = [
-  { id: '1', name: 'Akut abdomen – diagnostik og behandling', provider: 'Dansk Kirurgisk Selskab', date: '2026-02-10', cpdPoints: 12 },
-  { id: '2', name: 'Antibiotikavejledning i klinisk praksis', provider: 'Rigshospitalet', date: '2025-11-22', cpdPoints: 6 },
-  { id: '3', name: 'Palliativ medicin – grundkursus', provider: 'Dansk Selskab for Palliativ Medicin', date: '2025-09-05', cpdPoints: 18 },
-  { id: '4', name: 'Lederuddannelse for yngre læger', provider: 'Lægeforeningen', date: '2025-06-15', cpdPoints: 24 },
-  { id: '5', name: 'POCUS – avanceret hjerte-ultralyd', provider: 'Dansk Selskab for Akutmedicin', date: '2026-01-18', cpdPoints: 15 },
-  { id: '6', name: 'Simulationsbaseret teamtræning', provider: 'Copenhagen Academy for Medical Education', date: '2025-10-30', cpdPoints: 8 },
-]
-
-const statusColor: Record<Certifikat['status'], string> = {
-  'Gyldig': 'bg-green-50 text-green-700',
-  'Udløbet': 'bg-red-50 text-red-700',
-  'Udløber snart': 'bg-yellow-50 text-yellow-700',
-}
-
-const competenceColor: Record<Procedure['competenceLevel'], string> = {
-  'Basalt': 'bg-gray-100 text-gray-700',
-  'Selvstændigt': 'bg-blue-50 text-blue-700',
-  'Ekspert': 'bg-purple-50 text-purple-700',
+const competenceColor: Record<string, string> = {
+  'Basalt': 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  'Selvst\u00e6ndigt': 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
+  'Ekspert': 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400',
 }
 
 export default function CPDPage() {
   const [activeTab, setActiveTab] = useState<Tab>('certifikater')
+  const [entries, setEntries] = useState<CPDEntry[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    async function fetchEntries() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setLoading(false); return }
+
+      const { data: result } = await supabase
+        .from('cpd_entries')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      setEntries(result || [])
+      setLoading(false)
+    }
+    fetchEntries()
+  }, [])
+
+  const certifikater = entries.filter((e) => e.entry_type === 'certifikat')
+  const procedurer = entries.filter((e) => e.entry_type === 'procedure')
+  const kurser = entries.filter((e) => e.entry_type === 'kursus')
 
   const totalCertifikater = certifikater.length
-  const totalProcedurer = procedurer.reduce((sum, p) => sum + p.count, 0)
-  const totalCPDPoints = kurser.reduce((sum, k) => sum + k.cpdPoints, 0)
+  const totalProcedurer = procedurer.reduce((sum, p) => sum + (p.count || 0), 0)
+  const totalCPDPoints = kurser.reduce((sum, k) => sum + (k.cpd_points || 0), 0)
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'certifikater', label: 'Certifikater' },
@@ -82,15 +73,17 @@ export default function CPDPage() {
     { key: 'kurser', label: 'Kurser' },
   ]
 
+  if (loading) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Indl\u00e6ser...</div>
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Kompetencelogbog</h1>
-          <p className="text-gray-500">Hold styr på certifikater, procedurer og efteruddannelse</p>
+          <p className="text-gray-500">Hold styr p\u00e5 certifikater, procedurer og efteruddannelse</p>
         </div>
         <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-          Tilføj registrering
+          Tilf\u00f8j registrering
         </button>
       </div>
 
@@ -111,7 +104,7 @@ export default function CPDPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -119,7 +112,7 @@ export default function CPDPage() {
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
             {tab.label}
@@ -132,18 +125,22 @@ export default function CPDPage() {
         <Card>
           <CardTitle>Certifikater</CardTitle>
           <div className="mt-4 space-y-3">
-            {certifikater.map((cert) => (
-              <div key={cert.id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{cert.name}</p>
-                  <p className="text-sm text-gray-500">{cert.issuer}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Opnået: {cert.dateObtained} · Udløber: {cert.expiryDate}</p>
+            {certifikater.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Ingen certifikater registreret endnu.</p>
+            ) : (
+              certifikater.map((cert) => (
+                <div key={cert.id} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 last:border-0">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{cert.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{cert.issuer}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Opn\u00e5et: {cert.date_obtained} \u00b7 Udl\u00f8ber: {cert.expiry_date}</p>
+                  </div>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColor[cert.status || ''] || 'bg-gray-100 text-gray-700'}`}>
+                    {cert.status}
+                  </span>
                 </div>
-                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColor[cert.status]}`}>
-                  {cert.status}
-                </span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
       )}
@@ -152,17 +149,21 @@ export default function CPDPage() {
         <Card>
           <CardTitle>Procedurer</CardTitle>
           <div className="mt-4 space-y-3">
-            {procedurer.map((proc) => (
-              <div key={proc.id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{proc.name}</p>
-                  <p className="text-sm text-gray-500">Antal: {proc.count} · Sidst udført: {proc.lastPerformed}</p>
+            {procedurer.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Ingen procedurer registreret endnu.</p>
+            ) : (
+              procedurer.map((proc) => (
+                <div key={proc.id} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 last:border-0">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{proc.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Antal: {proc.count} \u00b7 Sidst udf\u00f8rt: {proc.last_performed}</p>
+                  </div>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${competenceColor[proc.competence_level || ''] || 'bg-gray-100 text-gray-700'}`}>
+                    {proc.competence_level}
+                  </span>
                 </div>
-                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${competenceColor[proc.competenceLevel]}`}>
-                  {proc.competenceLevel}
-                </span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
       )}
@@ -171,18 +172,22 @@ export default function CPDPage() {
         <Card>
           <CardTitle>Kurser</CardTitle>
           <div className="mt-4 space-y-3">
-            {kurser.map((kursus) => (
-              <div key={kursus.id} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{kursus.name}</p>
-                  <p className="text-sm text-gray-500">{kursus.provider}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Dato: {kursus.date}</p>
+            {kurser.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Ingen kurser registreret endnu.</p>
+            ) : (
+              kurser.map((kursus) => (
+                <div key={kursus.id} className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3 last:border-0">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{kursus.name}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{kursus.provider}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Dato: {kursus.date}</p>
+                  </div>
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+                    {kursus.cpd_points} point
+                  </span>
                 </div>
-                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-blue-50 text-blue-700">
-                  {kursus.cpdPoints} point
-                </span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Card>
       )}

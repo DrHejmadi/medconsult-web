@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -19,13 +20,14 @@ interface ShiftSwap {
   status: 'available' | 'pending' | 'swapped' | 'expired'
   expires_at: string
   created_at: string
+  user_id: string
 }
 
 const statusConfig: Record<ShiftSwap['status'], { label: string; variant: 'success' | 'warning' | 'info' | 'default' }> = {
-  available: { label: 'Tilgængelig', variant: 'success' },
+  available: { label: 'Tilg\u00e6ngelig', variant: 'success' },
   pending: { label: 'Afventer', variant: 'warning' },
   swapped: { label: 'Byttet', variant: 'info' },
-  expired: { label: 'Udløbet', variant: 'default' },
+  expired: { label: 'Udl\u00f8bet', variant: 'default' },
 }
 
 const shiftLabels: Record<string, string> = {
@@ -34,89 +36,6 @@ const shiftLabels: Record<string, string> = {
   night: 'Nattevagt',
   on_call: 'Tilkaldevagt',
 }
-
-const mockSwaps: ShiftSwap[] = [
-  {
-    id: '1',
-    doctor_name: 'Dr. Maria Jensen',
-    date: '2026-03-18',
-    shift_type: 'evening',
-    location: 'Rigshospitalet, København',
-    reason: 'Familiemæssige årsager',
-    status: 'available',
-    expires_at: '2026-03-17',
-    created_at: '2026-03-14',
-  },
-  {
-    id: '2',
-    doctor_name: 'Dr. Anders Pedersen',
-    date: '2026-03-20',
-    shift_type: 'night',
-    location: 'Aarhus Universitetshospital',
-    reason: 'Konference',
-    status: 'available',
-    expires_at: '2026-03-19',
-    created_at: '2026-03-13',
-  },
-  {
-    id: '3',
-    doctor_name: 'Dr. Sofie Nielsen',
-    date: '2026-03-22',
-    shift_type: 'day',
-    location: 'Odense Universitetshospital',
-    reason: 'Personlige årsager',
-    status: 'pending',
-    expires_at: '2026-03-21',
-    created_at: '2026-03-12',
-  },
-  {
-    id: '4',
-    doctor_name: 'Dr. Christian Larsen',
-    date: '2026-03-10',
-    shift_type: 'evening',
-    location: 'Aalborg Universitetshospital',
-    reason: 'Sygdom i familien',
-    status: 'swapped',
-    expires_at: '2026-03-09',
-    created_at: '2026-03-08',
-  },
-  {
-    id: '5',
-    doctor_name: 'Dr. Louise Hansen',
-    date: '2026-03-08',
-    shift_type: 'night',
-    location: 'Herlev Hospital',
-    reason: 'Eksamen',
-    status: 'expired',
-    expires_at: '2026-03-07',
-    created_at: '2026-03-05',
-  },
-]
-
-const mockMyRequests: ShiftSwap[] = [
-  {
-    id: '6',
-    doctor_name: 'Dig',
-    date: '2026-03-25',
-    shift_type: 'day',
-    location: 'Bispebjerg Hospital',
-    reason: 'Ferie',
-    status: 'available',
-    expires_at: '2026-03-24',
-    created_at: '2026-03-14',
-  },
-  {
-    id: '7',
-    doctor_name: 'Dig',
-    date: '2026-03-16',
-    shift_type: 'night',
-    location: 'Gentofte Hospital',
-    reason: 'Kursus',
-    status: 'pending',
-    expires_at: '2026-03-15',
-    created_at: '2026-03-10',
-  },
-]
 
 const myAssignmentOptions = [
   { value: '1', label: 'Dagvagt - Bispebjerg Hospital - 28. marts' },
@@ -127,8 +46,10 @@ const myAssignmentOptions = [
 export default function VagtbyttePage() {
   const [activeTab, setActiveTab] = useState<'available' | 'mine'>('available')
   const [showForm, setShowForm] = useState(false)
-  const [swaps, setSwaps] = useState<ShiftSwap[]>(mockSwaps)
-  const [myRequests, setMyRequests] = useState<ShiftSwap[]>(mockMyRequests)
+  const [swaps, setSwaps] = useState<ShiftSwap[]>([])
+  const [myRequests, setMyRequests] = useState<ShiftSwap[]>([])
+  const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     assignment_id: '',
@@ -136,14 +57,44 @@ export default function VagtbyttePage() {
     expires_at: '',
   })
 
-  function handleSubmit(e: React.FormEvent) {
+  const supabase = createClient()
+
+  useEffect(() => {
+    async function fetchSwaps() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setLoading(false); return }
+      setUserId(user.id)
+
+      // Fetch all available swaps (not the current user's)
+      const { data: availableResult } = await supabase
+        .from('shift_swaps')
+        .select('*')
+        .neq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      // Fetch user's own swap requests
+      const { data: myResult } = await supabase
+        .from('shift_swaps')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      setSwaps(availableResult || [])
+      setMyRequests(myResult || [])
+      setLoading(false)
+    }
+    fetchSwaps()
+  }, [])
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!userId) return
 
     const selectedAssignment = myAssignmentOptions.find((a) => a.value === form.assignment_id)
     if (!selectedAssignment) return
 
-    const newSwap: ShiftSwap = {
-      id: String(Date.now()),
+    const { error } = await supabase.from('shift_swaps').insert({
+      user_id: userId,
       doctor_name: 'Dig',
       date: '2026-03-28',
       shift_type: 'day',
@@ -151,15 +102,24 @@ export default function VagtbyttePage() {
       reason: form.reason,
       status: 'available',
       expires_at: form.expires_at,
-      created_at: new Date().toISOString(),
-    }
+    })
 
-    setMyRequests([newSwap, ...myRequests])
-    setShowForm(false)
-    setForm({ assignment_id: '', reason: '', expires_at: '' })
+    if (!error) {
+      // Refresh my requests
+      const { data: myResult } = await supabase
+        .from('shift_swaps')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+      setMyRequests(myResult || [])
+      setShowForm(false)
+      setForm({ assignment_id: '', reason: '', expires_at: '' })
+    }
   }
 
   const displayedSwaps = activeTab === 'available' ? swaps : myRequests
+
+  if (loading) return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Indl\u00e6ser...</div>
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -185,8 +145,8 @@ export default function VagtbyttePage() {
           onClick={() => setActiveTab('available')}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
             activeTab === 'available'
-              ? 'bg-blue-100 text-blue-700'
-              : 'text-gray-600 hover:bg-gray-100'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+              : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
           }`}
         >
           Tilg&aelig;ngelige vagter
@@ -195,8 +155,8 @@ export default function VagtbyttePage() {
           onClick={() => setActiveTab('mine')}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
             activeTab === 'mine'
-              ? 'bg-blue-100 text-blue-700'
-              : 'text-gray-600 hover:bg-gray-100'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+              : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
           }`}
         >
           Mine anmodninger
@@ -206,11 +166,11 @@ export default function VagtbyttePage() {
       {/* Swaps list */}
       {displayedSwaps.length === 0 ? (
         <EmptyState
-          icon="🔄"
-          title={activeTab === 'available' ? 'Ingen tilgængelige vagter' : 'Ingen anmodninger'}
+          icon="\uD83D\uDD04"
+          title={activeTab === 'available' ? 'Ingen tilg\u00e6ngelige vagter' : 'Ingen anmodninger'}
           message={
             activeTab === 'available'
-              ? 'Der er ingen vagter tilgængelige til bytte lige nu'
+              ? 'Der er ingen vagter tilg\u00e6ngelige til bytte lige nu'
               : 'Du har ikke oprettet nogen vagtbytte-anmodninger endnu'
           }
         />
@@ -224,7 +184,7 @@ export default function VagtbyttePage() {
                   <CardTitle>{swap.doctor_name}</CardTitle>
                   <Badge variant={config.variant}>{config.label}</Badge>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
                   <span>{formatDate(swap.date)}</span>
                   <span>{shiftLabels[swap.shift_type] || swap.shift_type}</span>
                   <span>{swap.location}</span>
@@ -251,13 +211,13 @@ export default function VagtbyttePage() {
       {/* Form modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg mx-4">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold">Tilbyd vagt til bytte</h2>
+                <h2 className="text-lg font-bold dark:text-gray-100">Tilbyd vagt til bytte</h2>
                 <button
                   onClick={() => setShowForm(false)}
-                  className="text-gray-400 hover:text-gray-600 text-xl"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl"
                 >
                   &times;
                 </button>
@@ -288,7 +248,7 @@ export default function VagtbyttePage() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     Annuller
                   </button>
