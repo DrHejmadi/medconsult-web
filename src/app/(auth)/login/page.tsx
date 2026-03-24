@@ -7,8 +7,9 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  // TEST MODE: Forudfyldt til interne testere
+  const [email, setEmail] = useState('hejmadi@gmail.com')
+  const [password, setPassword] = useState('test1234')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -36,6 +37,9 @@ export default function LoginPage() {
           <span className="text-4xl">🏥</span>
           <h1 className="text-2xl font-bold mt-4 text-gray-900 dark:text-white">Log ind på MedConsult</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">Velkommen tilbage</p>
+          <div className="mt-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg px-4 py-2">
+            <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">🧪 TESTMODE — Felterne er forudfyldt. Tryk bare &quot;Log ind&quot;</p>
+          </div>
         </div>
 
         <form onSubmit={handleLogin} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 space-y-4">
