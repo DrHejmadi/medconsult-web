@@ -27,41 +27,66 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup')
-  const isPatientPage = request.nextUrl.pathname.startsWith('/my-cases')
-  const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/journal') ||
-    request.nextUrl.pathname.startsWith('/assignments') ||
-    request.nextUrl.pathname.startsWith('/messages') ||
-    request.nextUrl.pathname.startsWith('/profiles') ||
-    request.nextUrl.pathname.startsWith('/ngo') ||
-    request.nextUrl.pathname.startsWith('/settings') ||
-    request.nextUrl.pathname.startsWith('/audit-log') ||
-    request.nextUrl.pathname.startsWith('/documents') ||
-    request.nextUrl.pathname.startsWith('/calculator') ||
-    request.nextUrl.pathname.startsWith('/time-tracking') ||
-    request.nextUrl.pathname.startsWith('/contracts') ||
-    request.nextUrl.pathname.startsWith('/ratings') ||
-    request.nextUrl.pathname.startsWith('/vagtbytte') ||
-    request.nextUrl.pathname.startsWith('/calendar') ||
-    request.nextUrl.pathname.startsWith('/cpd') ||
-    request.nextUrl.pathname.startsWith('/notifications') ||
-    request.nextUrl.pathname.startsWith('/onboarding') ||
-    request.nextUrl.pathname.startsWith('/referral') ||
-    request.nextUrl.pathname.startsWith('/analytics') ||
-    request.nextUrl.pathname.startsWith('/payment') ||
-    request.nextUrl.pathname.startsWith('/cases')
+  const pathname = request.nextUrl.pathname
 
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup')
+  const isPatientPage = pathname.startsWith('/my-cases') || pathname.startsWith('/patient')
+  const isPatientDataPage = pathname === '/patient' || pathname.startsWith('/patient/')
+  const isDashboardPage = pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/journal') ||
+    pathname.startsWith('/assignments') ||
+    pathname.startsWith('/messages') ||
+    pathname.startsWith('/profiles') ||
+    pathname.startsWith('/ngo') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/audit-log') ||
+    pathname.startsWith('/documents') ||
+    pathname.startsWith('/calculator') ||
+    pathname.startsWith('/time-tracking') ||
+    pathname.startsWith('/contracts') ||
+    pathname.startsWith('/ratings') ||
+    pathname.startsWith('/vagtbytte') ||
+    pathname.startsWith('/calendar') ||
+    pathname.startsWith('/cpd') ||
+    pathname.startsWith('/notifications') ||
+    pathname.startsWith('/onboarding') ||
+    pathname.startsWith('/referral') ||
+    pathname.startsWith('/analytics') ||
+    pathname.startsWith('/payment') ||
+    pathname.startsWith('/cases')
+
+  // Unauthenticated users cannot access protected pages
   if (!user && (isDashboardPage || isPatientPage)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
+  // Authenticated users on auth pages → redirect based on role
   if (user && isAuthPage) {
+    const role = user.user_metadata?.role
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = role === 'patient' ? '/my-cases' : '/dashboard'
     return NextResponse.redirect(url)
+  }
+
+  if (user) {
+    const role = user.user_metadata?.role
+
+    // Patient trying to access dashboard routes → redirect to /my-cases
+    if (role === 'patient' && isDashboardPage) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/my-cases'
+      return NextResponse.redirect(url)
+    }
+
+    // Non-patient trying to access patient routes → redirect to /dashboard
+    // Exception: allow /patient portal for GDPR compliance (all authenticated users)
+    if (role !== 'patient' && isPatientPage && !isPatientDataPage) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
