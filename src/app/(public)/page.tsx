@@ -2,6 +2,57 @@ import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
+const caseTypes = [
+  {
+    icon: '🔍',
+    title: 'Diagnoseforslag',
+    description: 'Få et kvalificeret bud på din diagnose',
+  },
+  {
+    icon: '🔄',
+    title: 'Second opinion',
+    description: 'Få en uafhængig vurdering af din eksisterende diagnose',
+  },
+  {
+    icon: '📋',
+    title: 'Udredningsforslag',
+    description: 'Få forslag til hvad der bør undersøges',
+  },
+  {
+    icon: '💊',
+    title: 'Behandlingsforslag',
+    description: 'Få anbefalinger til behandlingsmuligheder',
+  },
+  {
+    icon: '💬',
+    title: 'Kommunikationsrådgivning',
+    description: 'Få hjælp til dialog med egen læge eller sygehus',
+  },
+]
+
+const steps = [
+  {
+    number: '1',
+    title: 'Opret en sag',
+    description: 'Beskriv din sygehistorie og upload relevante dokumenter',
+  },
+  {
+    number: '2',
+    title: 'Vælg serviceniveau',
+    description: 'Vælg sagstype, speciale og svartid',
+  },
+  {
+    number: '3',
+    title: 'Lægen gennemgår',
+    description: 'En verificeret dansk læge gennemgår din sag grundigt',
+  },
+  {
+    number: '4',
+    title: 'Modtag vurdering',
+    description: 'Få en skriftlig, sporbar vurdering du kan handle på',
+  },
+]
+
 export default function LandingPage() {
   return (
     <>
@@ -15,15 +66,15 @@ export default function LandingPage() {
         </div>
 
         {/* Hero */}
-        <section className="bg-gradient-to-b from-blue-50 to-white py-20">
+        <section className="bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-950 py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-block bg-blue-100 text-blue-800 text-sm font-semibold px-4 py-1.5 rounded-full mb-6">
+            <div className="inline-block bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 text-sm font-semibold px-4 py-1.5 rounded-full mb-6">
               Forventet lancering: 1. maj 2026
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               Den komplette sundhedsplatform for Danmark
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
               MedConsult forbinder patienter med verificerede danske læger til asynkron klinisk ekspertvurdering,
               og giver læger en samlet platform til vikariater, journaler, kompetencer og samarbejde.
             </p>
@@ -36,7 +87,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="#features"
-                className="bg-white text-gray-700 px-8 py-3 rounded-lg text-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors"
+                className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-8 py-3 rounded-lg text-lg font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Læs mere
               </Link>
@@ -44,10 +95,88 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Features */}
-        <section id="features" className="py-20">
+        {/* Patient CTA */}
+        <section className="bg-gradient-to-b from-white to-blue-50 dark:from-gray-950 dark:to-gray-900 py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-block bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 text-sm font-semibold px-4 py-1.5 rounded-full mb-6">
+              For patienter
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Få en ekspertvurdering fra en dansk læge
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
+              Vælg mellem diagnoseforslag, second opinion, udredningsforslag, behandlingsforslag eller kommunikationsrådgivning
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
+              <Link
+                href="/signup"
+                className="bg-green-600 text-white px-8 py-3.5 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20"
+              >
+                Opret din første sag
+              </Link>
+              <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                Fra 299 kr
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Case type cards */}
+        <section className="bg-blue-50 dark:bg-gray-900 py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12">Alt hvad du har brug for</h2>
+            <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-10">
+              Hvilken hjælp har du brug for?
+            </h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              {caseTypes.map((caseType) => (
+                <div
+                  key={caseType.title}
+                  className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 text-center hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all"
+                >
+                  <span className="text-4xl mb-4 block">{caseType.icon}</span>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    {caseType.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {caseType.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section className="py-20 bg-white dark:bg-gray-950">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">
+              Sådan fungerer det
+            </h2>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-12 max-w-xl mx-auto">
+              Fire enkle trin fra sag til svar
+            </p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {steps.map((step) => (
+                <div key={step.number} className="text-center">
+                  <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                    {step.number}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section id="features" className="py-20 bg-gray-50 dark:bg-gray-900">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">Alt hvad du har brug for</h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
@@ -96,10 +225,10 @@ export default function LandingPage() {
                   description: 'Vikaraftaler, fortrolighedserklæringer og databehandleraftaler — klar til brug med automatisk udfyldning.',
                 },
               ].map((feature) => (
-                <div key={feature.title} className="bg-white rounded-xl border border-gray-200 p-6">
+                <div key={feature.title} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                   <span className="text-3xl mb-4 block">{feature.icon}</span>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
                 </div>
               ))}
             </div>
@@ -107,9 +236,9 @@ export default function LandingPage() {
         </section>
 
         {/* For whom */}
-        <section className="bg-gray-50 py-20">
+        <section className="bg-gray-50 dark:bg-gray-900 py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12">For hvem?</h2>
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">For hvem?</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 {
@@ -133,12 +262,12 @@ export default function LandingPage() {
                   points: ['Få asynkron klinisk ekspertvurdering', 'Vælg serviceniveau og speciale', 'Fuld aktindsigt og klageadgang'],
                 },
               ].map((role) => (
-                <div key={role.title} className="bg-white rounded-xl border border-gray-200 p-6">
+                <div key={role.title} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                   <span className="text-3xl mb-4 block">{role.icon}</span>
-                  <h3 className="text-lg font-semibold mb-4">{role.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{role.title}</h3>
                   <ul className="space-y-2">
                     {role.points.map((point) => (
-                      <li key={point} className="flex items-start gap-2 text-gray-600">
+                      <li key={point} className="flex items-start gap-2 text-gray-600 dark:text-gray-400">
                         <span className="text-green-500 mt-0.5">✓</span>
                         {point}
                       </li>
@@ -151,10 +280,10 @@ export default function LandingPage() {
         </section>
 
         {/* Coming Soon */}
-        <section className="bg-blue-50 py-16">
+        <section className="bg-blue-50 dark:bg-gray-900 py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-4">Funktioner ved lancering</h2>
-            <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-4">Funktioner ved lancering</h2>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">
               Vi har allerede bygget en lang række funktioner til lanceringen 1. maj 2026 — og flere er på vej
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -183,13 +312,13 @@ export default function LandingPage() {
                 { icon: '✅', label: 'STPS autorisationsverificering', ready: false },
                 { icon: '💊', label: 'FMK medicinliste (read-only)', ready: false },
               ].map((item) => (
-                <div key={item.label} className={`rounded-lg border px-4 py-3 flex items-center gap-3 ${item.ready ? 'bg-white border-green-200' : 'bg-gray-50 border-blue-100'}`}>
+                <div key={item.label} className={`rounded-lg border px-4 py-3 flex items-center gap-3 ${item.ready ? 'bg-white dark:bg-gray-800 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-800/50 border-blue-100 dark:border-blue-900'}`}>
                   <span className="text-xl">{item.icon}</span>
-                  <span className="text-sm font-medium text-gray-700">{item.label}</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
                   {item.ready ? (
-                    <span className="ml-auto text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full whitespace-nowrap">Klar</span>
+                    <span className="ml-auto text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/50 px-2 py-0.5 rounded-full whitespace-nowrap">Klar</span>
                   ) : (
-                    <span className="ml-auto text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full whitespace-nowrap">Kommer snart</span>
+                    <span className="ml-auto text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50 px-2 py-0.5 rounded-full whitespace-nowrap">Kommer snart</span>
                   )}
                 </div>
               ))}
@@ -198,11 +327,11 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20">
+        <section className="py-20 bg-white dark:bg-gray-950">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">Vær med fra starten</h2>
-            <p className="text-xl text-gray-600 mb-2">MedConsult lanceres 1. maj 2026.</p>
-            <p className="text-lg text-gray-500 mb-8">Tilmeld dig nu og få tidlig adgang til platformen.</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Vær med fra starten</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">MedConsult lanceres 1. maj 2026.</p>
+            <p className="text-lg text-gray-500 dark:text-gray-400 mb-8">Tilmeld dig nu og få tidlig adgang til platformen.</p>
             <Link
               href="/signup"
               className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors"
