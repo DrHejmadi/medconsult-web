@@ -55,6 +55,16 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/payment') ||
     pathname.startsWith('/cases')
 
+  // DEMO MODE: Tillad adgang uden auth mens Supabase ikke er konfigureret
+  // Fjern denne blok når produktions-Supabase er sat op
+  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder') ||
+    process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project')
+
+  if (isDemoMode) {
+    return supabaseResponse
+  }
+
   // Unauthenticated users cannot access protected pages
   if (!user && (isDashboardPage || isPatientPage)) {
     const url = request.nextUrl.clone()

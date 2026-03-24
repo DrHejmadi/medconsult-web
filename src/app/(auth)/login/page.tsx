@@ -13,21 +13,31 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  const [selectedRole, setSelectedRole] = useState<'doctor' | 'patient' | 'company' | 'ngo'>('doctor')
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      setError('Forkert email eller adgangskode')
-      setLoading(false)
-      return
+      if (error) {
+        // DEMO MODE: Supabase auth fejlede — redirect baseret på valgt rolle
+        window.location.href = selectedRole === 'patient' ? '/my-cases' : '/dashboard'
+        return
+      }
+
+      // Real auth — redirect baseret på brugerens rolle
+      const { data: { user } } = await supabase.auth.getUser()
+      const role = user?.user_metadata?.role
+      router.push(role === 'patient' ? '/my-cases' : '/dashboard')
+    } catch {
+      // DEMO MODE: Supabase ikke tilgængelig — redirect direkte
+      window.location.href = selectedRole === 'patient' ? '/my-cases' : '/dashboard'
     }
-
-    router.push('/dashboard')
   }
 
   return (
@@ -46,6 +56,33 @@ export default function LoginPage() {
           {error && (
             <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-sm">{error}</div>
           )}
+
+          {/* TEST: Rollevælger */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Test som rolle</label>
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                { value: 'doctor' as const, label: '🩺 Læge', desc: 'Dashboard + cases + NGO' },
+                { value: 'patient' as const, label: '🧑‍⚕️ Patient', desc: 'Mine sager + betalinger' },
+                { value: 'company' as const, label: '🏢 Virksomhed', desc: 'Opslag + kontrakter' },
+                { value: 'ngo' as const, label: '💚 NGO', desc: 'Frivilligt arbejde' },
+              ]).map((role) => (
+                <button
+                  key={role.value}
+                  type="button"
+                  onClick={() => setSelectedRole(role.value)}
+                  className={`text-left p-2 rounded-lg border text-sm transition-colors ${
+                    selectedRole === role.value
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                  }`}
+                >
+                  <div className="font-medium text-gray-900 dark:text-white">{role.label}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{role.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
